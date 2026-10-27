@@ -7,6 +7,7 @@ import com.shop.repository.CustomerRepository;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.math.BigDecimal;
 
 public class CustomerService {
 
