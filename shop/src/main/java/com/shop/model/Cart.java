@@ -6,4 +6,8 @@ public record Cart(List<CartItem> items) {
     public int totalQuantity() {
         return items.stream().mapToInt(CartItem::quantity).sum();
     }
+
+    public List<CartItem> getItems() {
+        return items;
+    }
 }
