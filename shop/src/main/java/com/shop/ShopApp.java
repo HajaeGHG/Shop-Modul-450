@@ -15,8 +15,7 @@ public class ShopApp {
 
     public static void main(String[] args) throws Exception {
         // Verbindung (In-Memory H2, bleibt offen solange JVM läuft)
-        Connection conn = DriverManager.getConnection(
-            "jdbc:h2:./data/shopdb;AUTO_SERVER=TRUE", "sa", "");
+        Connection conn = DriverManager.getConnection("jdbc:h2:mem:shopdb", "sa", "");
 
         // Schema anlegen
         CustomerRepository customerRepo = new CustomerRepository(conn);
