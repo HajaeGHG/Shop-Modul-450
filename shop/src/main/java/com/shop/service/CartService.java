@@ -92,4 +92,14 @@ public class CartService {
         }
         return new Cart(items);
     }
+
+        public static int getMaxQuantityPerItem()
+        {
+            return MAX_QUANTITY_PER_ITEM;
+        }
+
+        public static int getMaxQuantityPerOrder()
+        {
+            return MAX_ITEMS_PER_ORDER;
+        }
 }
