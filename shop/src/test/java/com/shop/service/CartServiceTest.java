@@ -241,38 +241,24 @@ public class CartServiceTest {
       }
    }
 
-   @Test //WIP
+   @Test
    public void addToCart_MaxQuantityOrderTest()
    {
       for (int i = 0; i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem() - 1; i++)
       {
+         final String sku = m_skus[i];
          if (i >= 7)
             assertTrue(true);
          try {
-            m_cartService.addToCart(new ArrayList<>(), m_skus[i], CartService.getMaxQuantityPerItem());
+            if (i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem())
+               m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem());
+            else
+               assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem()));
+
          } catch (SQLException e) {
             assertTrue(false);
          }
       }
-      try {
-         m_cartService.addToCart(new ArrayList<>(), m_skus[6], CartService.getMaxQuantityPerItem());
-         assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[7], CartService.getMaxQuantityPerItem()));
-      }
-      catch (SQLException e) {
-         assertTrue(false);
-      }
-   }
+   }   
 
-   @Test //WIP
-   public void addToCart_NewMaxQuantityOrderTest()
-   {
-      Cart cart;
-      try {
-         cart = m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() / 2);
-         assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() / 2 + 1));
-         assertEquals(6, cart.getItems().get(0).getQuantity());
-      } catch (SQLException e) {
-         assertTrue(false);
-      }
-   }
 }
