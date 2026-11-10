@@ -30,13 +30,13 @@ public class CartService {
         }
 
         Product product = productRepository.findBySku(sku)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + sku));
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + sku));
 
         // Prüfen ob Produkt bereits im Warenkorb
         List<CartItem> items = new ArrayList<>(currentItems);
         Optional<CartItem> existing = items.stream()
-            .filter(i -> i.product().sku().equals(sku))
-            .findFirst();
+                .filter(i -> i.product().sku().equals(sku))
+                .findFirst();
 
         int newQuantity;
         if (existing.isPresent()) {
@@ -78,7 +78,7 @@ public class CartService {
         }
 
         Product product = productRepository.findBySku(sku)
-            .orElseThrow(() -> new IllegalArgumentException("Product not found: " + sku));
+                .orElseThrow(() -> new IllegalArgumentException("Product not found: " + sku));
 
         if (!product.isInStock(newQuantity)) {
             throw new InsufficientStockException(sku, newQuantity, product.stockQuantity());
