@@ -221,7 +221,7 @@ public class CartServiceTest {
    private static void seedProducts(ProductRepository repo) throws Exception {
       repo.save(new Product(null, m_skus[0], "USB-C Kabel 2m", new BigDecimal("19.90"), 100, Product.Category.ELECTRONICS));
       repo.save(new Product(null, m_skus[1], "Bluetooth Kopfhörer", new BigDecimal("79.00"), 30, Product.Category.ELECTRONICS));
-      repo.save(new Product(null, m_skus[2], "Webcam HD", new BigDecimal("45.50"), 15, Product.Category.ELECTRONICS));
+      repo.save(new Product(null, m_skus[2], "Webcam HD", new BigDecimal("45.50"), 25, Product.Category.ELECTRONICS));
       repo.save(new Product(null, m_skus[3], "Clean Code", new BigDecimal("42.00"), 50, Product.Category.BOOKS));
       repo.save(new Product(null, m_skus[4], "Domain-Driven Design", new BigDecimal("55.00"), 20, Product.Category.BOOKS));
       repo.save(new Product(null, m_skus[5], "T-Shirt Bio", new BigDecimal("24.90"), 200, Product.Category.CLOTHING));
@@ -231,6 +231,10 @@ public class CartServiceTest {
       repo.save(new Product(null, "BOOK-011", "Clean Code", new BigDecimal("42.00"), 50, Product.Category.BOOKS));
       repo.save(new Product(null, "FOOD-011", "Schoggi 200g", new BigDecimal("8.50"), 500, Product.Category.FOOD));
       repo.save(new Product(null, "CLOTH-011", "T-Shirt Gr. M", new BigDecimal("25.00"), 0, Product.Category.CLOTHING));
+      repo.save(new Product(null, "CLOTH-012", "T-Shirt Gr. XL", new BigDecimal("30.00"), 13, Product.Category.CLOTHING));
+      repo.save(new Product(null, "CLOTH-013", "T-Shirt Gr. XL", new BigDecimal("30.00"), 13, Product.Category.CLOTHING));
+      repo.save(new Product(null, "CLOTH-014", "T-Shirt Gr. XL", new BigDecimal("30.00"), 13, Product.Category.CLOTHING));
+
    }
 
    // addToCartTests:
@@ -301,6 +305,14 @@ public class CartServiceTest {
             assertTrue(false);
          }
       }
+   }
+
+   @Test
+   public void addToCart_StockTest()
+   {
+      assertDoesNotThrow(() -> m_cartService.addToCart(new ArrayList<>(), "CLOTH-012", 12));
+      assertDoesNotThrow(() -> m_cartService.addToCart(new ArrayList<>(), "CLOTH-013", 13));
+      assertThrowsExactly(InsufficientStockException.class, () -> m_cartService.addToCart(new ArrayList<>(), "CLOTH-014", 15));
    }
 
    @Test
