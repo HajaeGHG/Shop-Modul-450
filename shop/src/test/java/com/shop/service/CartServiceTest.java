@@ -301,5 +301,26 @@ public class CartServiceTest {
             assertTrue(false);
          }
       }
-   }   
+   }
+
+   @Test
+   public void getAverageItemPrice_returnsAverageAcrossMultipleItems() throws SQLException {
+       /** Adds first product; starts cart. */
+       Cart cart = m_cartService.addToCart(new ArrayList<>(), m_skus[0], 2);
+       /** Adds second product; extends cart. */
+       cart = m_cartService.addToCart(cart.getItems(), m_skus[1], 1);
+       /** Adds third product; custom quantity. */
+       cart = m_cartService.addToCart(cart.getItems(), m_skus[2], 3);
+       /** Adds fourth product; mixed cart. */
+       cart = m_cartService.addToCart(cart.getItems(), m_skus[3], 1);
+       /** Adds fifth product; final basket. */
+       cart = m_cartService.addToCart(cart.getItems(), m_skus[5], 2);
+
+       /** Calls average calculation; cart values. */
+       BigDecimal average = m_cartService.getAverageItemPrice(cart.getItems());
+
+       /** Verifies expected average; exact value. */
+       assertEquals(new BigDecimal("42.26"), average);
+   }
+
 }
