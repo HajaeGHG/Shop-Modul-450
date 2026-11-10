@@ -1,5 +1,8 @@
 {
-    "java.project.sourcePaths": ["shop/src/main/java"],
+    "java.project.sourcePaths": [
+        "shop/src/main/java"
+    ],
     "java.project.outputPath": "target/classes",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "chat.extensionUnification.enabled": true
 }
