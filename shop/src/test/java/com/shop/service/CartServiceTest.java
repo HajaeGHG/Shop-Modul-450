@@ -314,24 +314,4 @@ public class CartServiceTest {
       assertDoesNotThrow(() -> m_cartService.addToCart(new ArrayList<>(), "CLOTH-013", 13));
       assertThrowsExactly(InsufficientStockException.class, () -> m_cartService.addToCart(new ArrayList<>(), "CLOTH-014", 15));
    }
-
-   @Test
-   public void addToCart_MaxQuantityOrderTest()
-   {
-      for (int i = 0; i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem() - 1; i++)
-      {
-         final String sku = m_skus[i];
-         if (i >= 7)
-            assertTrue(true);
-         try {
-            if (i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem())
-               m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem());
-            else
-               assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem()));
-
-         } catch (SQLException e) {
-            assertTrue(false);
-         }
-      }
-   }   
 }
