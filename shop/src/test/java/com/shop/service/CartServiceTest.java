@@ -145,17 +145,17 @@ public class CartServiceTest {
 
   @Test
   public void updateQuantity_InsufficientStockTest() throws Exception {
+    // ELEC-003 hat 15 Stück an Lager
+    Cart cart = m_cartService.addToCart(new ArrayList<>(), "ELEC-003", 5);
 
-    Cart initialCart = m_cartService.addToCart(new ArrayList<>(), "ELEC-001", 2);
-
+    // Versuchen, die Menge im Warenkorb auf 16 zu erhöhen (mehr als die 15 an Lager)
     assertThrows(InsufficientStockException.class, () -> {
-        m_cartService.updateQuantity(initialCart.items(), "CLOTH-001", 1);
+        m_cartService.updateQuantity(cart.items(), "ELEC-003", 16);
     });
   }
 
   @Test
   public void addToCart_MaxOrderTotalLimitTest() throws Exception {
-    // Korrigiert: Effektiv finale Variablen durch eindeutige Namen
     Cart cart1 = m_cartService.addToCart(new ArrayList<>(), "ELEC-001", 20);
     Cart cart2 = m_cartService.addToCart(cart1.items(), "BOOK-001", 20);
     
