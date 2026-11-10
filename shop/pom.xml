@@ -9,9 +9,10 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.source>23</maven.compiler.source>
+        <maven.compiler.target>23</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <pit.version>1.16.1</pit.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,23 @@
                 <version>3.2.0</version>
                 <configuration>
                     <mainClass>com.shop.ShopApp</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pit.version}</version>
+                <configuration>
+                    <targetClasses>
+                        <param>com.shop.service.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.shop.service.*</param>
+                    </targetTests>
+                    <outputFormats>
+                        <param>HTML</param>
+                        <param>XML</param>
+                    </outputFormats>
                 </configuration>
             </plugin>
         </plugins>
