@@ -199,8 +199,8 @@ public class CartServiceTest {
    public void addToCart_MaxQuantityItemTest()
    {
       assertDoesNotThrow(() -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() - 1));
-      assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem()));
-      assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() + 1));
+      assertDoesNotThrow(() -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem()));
+      assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[1], CartService.getMaxQuantityPerItem() + 1));
    }
 
    @Test
@@ -209,8 +209,8 @@ public class CartServiceTest {
       Cart cart;
       try {
          cart = m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() / 2);
-         assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), m_skus[0], CartService.getMaxQuantityPerItem() / 2 + 1));
-         assertEquals(6, cart.getItems().get(0).getQuantity());
+         assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(cart.getItems(), m_skus[0], CartService.getMaxQuantityPerItem() / 2 + 2));
+         assertEquals(CartService.getMaxQuantityPerItem() / 2, cart.getItems().get(0).getQuantity());
       } catch (SQLException e) {
          assertTrue(false);
       }
