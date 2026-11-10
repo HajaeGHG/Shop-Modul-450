@@ -7,6 +7,9 @@ import com.shop.model.Product;
 import com.shop.repository.ProductRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -20,7 +23,17 @@ import com.shop.model.CartItem;
 import com.shop.exception.InsufficientStockException;
 import java.sql.SQLException;
 
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito.*;
+
 public class CartServiceTest {
+
+   @Mock 
+   private ProductRepository productRepositoryMock;
+
+   @InjectMocks
+   private CartService cartServiceMocked;
 
    private CartService m_cartService;
    static String m_skus[] = {"ELEC-001", "ELEC-002", "ELEC-003", "BOOK-001", "BOOK-002", "CLOTH-001", "FOOD-001", "FOOD-002"};
@@ -41,6 +54,29 @@ public class CartServiceTest {
       m_cartService = new CartService(productRepo);
    }
 
+   @Test
+   public void productDoesNotExistTest_WithMock() throws Exception {
+      when(productRepositoryMock.findBySku("TEST-011")).thenReturn(Optional.empty());
+
+      assertThrows(IllegalArgumentException.class, () -> {
+         cartServiceMocked.addToCart(new ArrayList<>(), "TEST-011", 1);
+      });
+
+      verify(productRepositoryMock, times(1)).findBySku("TEST-011");
+   }
+
+   @Test
+   public void productIsOutOfStockTest_WithMock() throws Exception {
+
+      Product outOfStockProduct = new Product(null, "CLOTH-011", "T-Shirt Gr. M", new BigDecimal("25.00"), 0, Product.Category.CLOTHING);
+      when(productRepositoryMock.findBySku("CLOTH-011")).thenReturn(Optional.of(outOfStockProduct));
+
+      assertThrows(InsufficientStockException.class, () -> {
+         cartServiceMocked.addToCart(new ArrayList<>(), "CLOTH-011", 1);
+      });
+
+      verify(productRepositoryMock, times(1)).findBySku("CLOTH-011");
+   }
   @Test
   public void removeFromCartWhenSkuExistsTest() throws Exception {
     List<CartItem> items = new ArrayList<>();
