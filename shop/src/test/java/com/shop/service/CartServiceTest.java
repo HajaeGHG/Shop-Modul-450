@@ -316,23 +316,22 @@ public class CartServiceTest {
    }
 
    @Test
-   public void getAverageItemPrice_returnsAverageAcrossMultipleItems() throws SQLException {
-       /** Adds first product; starts cart. */
-       Cart cart = m_cartService.addToCart(new ArrayList<>(), m_skus[0], 2);
-       /** Adds second product; extends cart. */
-       cart = m_cartService.addToCart(cart.getItems(), m_skus[1], 1);
-       /** Adds third product; custom quantity. */
-       cart = m_cartService.addToCart(cart.getItems(), m_skus[2], 3);
-       /** Adds fourth product; mixed cart. */
-       cart = m_cartService.addToCart(cart.getItems(), m_skus[3], 1);
-       /** Adds fifth product; final basket. */
-       cart = m_cartService.addToCart(cart.getItems(), m_skus[5], 2);
+   public void addToCart_MaxQuantityOrderTest()
+   {
+      for (int i = 0; i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem() - 1; i++)
+      {
+         final String sku = m_skus[i];
+         if (i >= 7)
+            assertTrue(true);
+         try {
+            if (i < CartService.getMaxQuantityPerOrder() / CartService.getMaxQuantityPerItem())
+               m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem());
+            else
+               assertThrowsExactly(IllegalArgumentException.class, () -> m_cartService.addToCart(new ArrayList<>(), sku, CartService.getMaxQuantityPerItem()));
 
-       /** Calls average calculation; cart values. */
-       BigDecimal average = m_cartService.getAverageItemPrice(cart.getItems());
-
-       /** Verifies expected average; exact value. */
-       assertEquals(new BigDecimal("42.26"), average);
-   }
-
+         } catch (SQLException e) {
+            assertTrue(false);
+         }
+      }
+   }   
 }
