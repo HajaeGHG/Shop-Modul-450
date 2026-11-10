@@ -6,6 +6,8 @@ import com.shop.model.CartItem;
 import com.shop.model.Product;
 import com.shop.repository.ProductRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +93,18 @@ public class CartService {
             }
         }
         return new Cart(items);
+    }
+
+    public BigDecimal getAverageItemPrice(List<CartItem> currentItems) {
+        if (currentItems == null || currentItems.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        BigDecimal total = currentItems.stream()
+            .map(item -> item.product().price())
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return total.divide(BigDecimal.valueOf(currentItems.size()), 2, RoundingMode.HALF_UP);
     }
 
         public static int getMaxQuantityPerItem()
