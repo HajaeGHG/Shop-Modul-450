@@ -16,5 +16,5 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - working-directory: shop
       - run: mvn test
+        working-directory: shop
