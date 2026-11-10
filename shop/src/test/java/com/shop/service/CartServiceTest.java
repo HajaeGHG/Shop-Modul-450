@@ -7,7 +7,6 @@ import com.shop.model.Product;
 import com.shop.repository.ProductRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.refEq;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -30,24 +29,20 @@ public class CartServiceTest {
    public void initCart() throws Exception
    {
       Connection conn = DriverManager.getConnection("jdbc:h2:mem:shopdb", "sa", "");
-   
-      // Schema anlegen
+
       ProductRepository productRepo = new ProductRepository(conn);
       
       productRepo.initSchema();
-      // Tabelle leeren, damit Tests isoliert sind
       try (var stmt = conn.createStatement()) {
          stmt.execute("DELETE FROM products");
       }
       
-      // Beispieldaten
       seedProducts(productRepo);
       m_cartService = new CartService(productRepo);
    }
 
   @Test
   public void removeFromCartWhenSkuExistsTest() throws Exception {
-    // Arrange
     List<CartItem> items = new ArrayList<>();
     Cart cart = new Cart(items);
 
@@ -57,17 +52,14 @@ public class CartServiceTest {
 
     assertEquals(3, cart.items().size());
 
-    // Act
     cart = m_cartService.removeFromCart(cart.items(), "BOOK-011");
 
-    // Assert
     assertEquals(2, cart.items().size());
     assertTrue(cart.items().stream().noneMatch(i -> i.product().sku().equals("BOOK-011")));
   }
 
   @Test
   public void removeFromCartWhenSkuDoesNotExistTest() throws Exception {
-    // Arrange
     List<CartItem> items = new ArrayList<>();
     Cart cart = new Cart(items);
 
@@ -77,10 +69,8 @@ public class CartServiceTest {
 
     assertEquals(3, cart.items().size());
 
-    // Act
     cart = m_cartService.removeFromCart(cart.items(), "NON-EXISTENT-SKU");
 
-    // Assert
     assertEquals(3, cart.items().size());
   }
 
@@ -133,6 +123,48 @@ public class CartServiceTest {
   }
 
   @Test
+  public void updateQuantity_MultipleItemsPreservesOthersTest() throws Exception {
+    List<CartItem> items = new ArrayList<>();
+    Cart cart = new Cart(items);
+    cart = m_cartService.addToCart(cart.items(), "ELEC-001", 2);
+    cart = m_cartService.addToCart(cart.items(), "BOOK-001", 3);
+
+    cart = m_cartService.updateQuantity(cart.items(), "ELEC-001", 5);
+
+    assertEquals(2, cart.items().size());
+    assertEquals(5, cart.items().stream().filter(i -> i.product().sku().equals("ELEC-001")).findFirst().get().quantity());
+    assertEquals(3, cart.items().stream().filter(i -> i.product().sku().equals("BOOK-001")).findFirst().get().quantity());
+  }
+
+  @Test
+  public void updateQuantity_ProductNotFoundTest() {
+    assertThrows(IllegalArgumentException.class, () -> {
+        m_cartService.updateQuantity(new ArrayList<>(), "UNKNOWN-SKU", 5);
+    });
+  }
+
+  @Test
+  public void updateQuantity_InsufficientStockTest() throws Exception {
+
+    Cart initialCart = m_cartService.addToCart(new ArrayList<>(), "ELEC-001", 2);
+
+    assertThrows(InsufficientStockException.class, () -> {
+        m_cartService.updateQuantity(initialCart.items(), "CLOTH-001", 1);
+    });
+  }
+
+  @Test
+  public void addToCart_MaxOrderTotalLimitTest() throws Exception {
+    // Korrigiert: Effektiv finale Variablen durch eindeutige Namen
+    Cart cart1 = m_cartService.addToCart(new ArrayList<>(), "ELEC-001", 20);
+    Cart cart2 = m_cartService.addToCart(cart1.items(), "BOOK-001", 20);
+    
+    assertThrows(IllegalArgumentException.class, () -> {
+        m_cartService.addToCart(cart2.items(), "FOOD-001", 11);
+    });
+  }
+
+  @Test
   public void productDoesNotExistTest() throws Exception {
     List<CartItem> items = new ArrayList<>();
     Cart cart = new Cart(items);
@@ -163,7 +195,6 @@ public class CartServiceTest {
       repo.save(new Product(null, "BOOK-011", "Clean Code", new BigDecimal("42.00"), 50, Product.Category.BOOKS));
       repo.save(new Product(null, "FOOD-011", "Schoggi 200g", new BigDecimal("8.50"), 500, Product.Category.FOOD));
       repo.save(new Product(null, "CLOTH-011", "T-Shirt Gr. M", new BigDecimal("25.00"), 0, Product.Category.CLOTHING));
-      refEq(null, m_skus);
    }
 
    // addToCartTests:
@@ -235,5 +266,4 @@ public class CartServiceTest {
          }
       }
    }   
-
 }
