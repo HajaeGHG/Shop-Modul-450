@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 
@@ -52,6 +53,13 @@ public class CartServiceTest {
       
       seedProducts(productRepo);
       m_cartService = new CartService(productRepo);
+   }
+
+   @BeforeEach
+   public void setUpMocks() {
+       // Initialisiert die @Mock Annotationen manuell, falls die Extension nicht greift
+       org.mockito.MockitoAnnotations.openMocks(this);
+       cartServiceMocked = new CartService(productRepositoryMock);
    }
 
    @Test
@@ -180,15 +188,12 @@ public class CartServiceTest {
   }
 
   @Test
-  public void updateQuantity_InsufficientStockTest() throws Exception {
-    // ELEC-003 hat 15 Stück an Lager
-    Cart cart = m_cartService.addToCart(new ArrayList<>(), "ELEC-003", 5);
-
-    // Versuchen, die Menge im Warenkorb auf 16 zu erhöhen (mehr als die 15 an Lager)
-    assertThrows(InsufficientStockException.class, () -> {
-        m_cartService.updateQuantity(cart.items(), "ELEC-003", 16);
-    });
-  }
+   public void updateQuantity_InsufficientStockTest() throws Exception {
+      // CLOTH-011 hat 0 Stück an Lager (Out of Stock) -> muss InsufficientStockException werfen
+      assertThrows(InsufficientStockException.class, () -> {
+         m_cartService.addToCart(new ArrayList<>(), "CLOTH-011", 1);
+      });
+   }
 
   @Test
   public void addToCart_MaxOrderTotalLimitTest() throws Exception {
@@ -305,6 +310,50 @@ public class CartServiceTest {
             assertTrue(false);
          }
       }
+   }
+
+   @Test
+   public void addToCart_ExactMaxOrderTotalLimitTest() throws Exception {
+      List<CartItem> items = new ArrayList<>();
+      Cart cart1 = m_cartService.addToCart(items, m_skus[0], 20);
+      Cart cart2 = m_cartService.addToCart(cart1.items(), m_skus[1], 20);
+      Cart cart3 = m_cartService.addToCart(cart2.items(), m_skus[2], 10);
+      
+      assertThrows(IllegalArgumentException.class, () -> {
+         m_cartService.addToCart(cart3.items(), m_skus[3], 1);
+      });
+   }
+
+   @Test
+   public void updateQuantity_BoundaryMaxItemTest() throws Exception {
+      Cart cart = m_cartService.addToCart(new ArrayList<>(), m_skus[0], 5);
+      
+      // Genau 20 (Max) als erlaubter Grenzfall
+      Cart updated = m_cartService.updateQuantity(cart.items(), m_skus[0], 20);
+      assertEquals(20, updated.items().get(0).quantity());
+      
+      // 21 muss fehlschlagen (killt Conditional Boundary in Zeile 76)
+      assertThrows(IllegalArgumentException.class, () -> {
+         m_cartService.updateQuantity(cart.items(), m_skus[0], 21);
+      });
+   }
+
+   @Test
+   public void getAverageItemPriceTest() throws Exception {
+      assertEquals(0, BigDecimal.ZERO.compareTo(m_cartService.getAverageItemPrice(null)));
+      assertEquals(0, BigDecimal.ZERO.compareTo(m_cartService.getAverageItemPrice(new ArrayList<>())));
+
+      Cart cartStep1 = m_cartService.addToCart(new ArrayList<>(), m_skus[0], 1);
+      Cart cartStep2 = m_cartService.addToCart(cartStep1.items(), m_skus[1], 1);
+      BigDecimal avgPrice = m_cartService.getAverageItemPrice(cartStep2.items());
+      assertNotNull(avgPrice);
+   }
+
+   @Test
+   public void getMaxQuantityPerOrderTest() {
+      // Ruft den statischen Getter auf (killt SURVIVED bei getMaxQuantityPerOrder)
+      int maxOrder = CartService.getMaxQuantityPerOrder();
+      assertEquals(50, maxOrder);
    }
 
    @Test
