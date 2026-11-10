@@ -17,3 +17,4 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - run: mvn test
+      - working-directory: shop
