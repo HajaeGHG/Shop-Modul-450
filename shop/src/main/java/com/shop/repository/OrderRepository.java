@@ -1,7 +1,6 @@
 package com.shop.repository;
 
 import com.shop.model.*;
-import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
