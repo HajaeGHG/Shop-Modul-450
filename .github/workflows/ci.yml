@@ -17,4 +17,5 @@ jobs:
           distribution: 'temurin'
           cache: maven
       - run: mvn test
+      - run: mvn test-compile pitest:mutationCoverage
         working-directory: shop
