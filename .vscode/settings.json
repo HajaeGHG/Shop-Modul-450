@@ -4,5 +4,21 @@
     ],
     "java.project.outputPath": "target/classes",
     "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "C:\\Program Files\\Java\\jdk-21.0.12.1",
+            "default": true
+        }
+    ],
+    "java.test.config": [
+        {
+            "name": "Shop Maven Tests",
+            "workingDirectory": "${workspaceFolder}/shop",
+            "vmArgs": [
+                "-Dnet.bytebuddy.experimental=true"
+            ]
+        }
+    ],
     "chat.extensionUnification.enabled": true
 }
